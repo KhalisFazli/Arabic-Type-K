@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TypeArabic — Learn Arabic Typing</title>
+  <meta name="description" content="Learn to type in Arabic on a physical keyboard, with MonkeyType-style time and word modes and a mistake-focus that builds drills from your own errors." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- UI font + default display fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+  <!-- Selectable Arabic display fonts (each separate so one failure can't break the rest) -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Parastoo:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lateef&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Gulzar&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- ===================== Header ===================== -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">ن</div>
+        <div class="brand-text">
+          <strong>TypeArabic</strong>
+          <span data-i18n="brand.tagline">Learn Arabic typing</span>
+        </div>
+      </div>
+
+      <nav class="tabs" id="tabs" aria-label="Navigation">
+        <button class="tab is-active" data-view="practice">
+          <span class="tab-ico" aria-hidden="true">⌨</span> <span data-i18n="tab.practice">Practice</span>
+        </button>
+        <button class="tab" data-view="quran">
+          <span class="tab-ico" aria-hidden="true">📖</span> <span data-i18n="tab.quran">Quran</span>
+        </button>
+        <button class="tab" data-view="focus">
+          <span class="tab-ico" aria-hidden="true">◎</span> <span data-i18n="tab.focus">Mistake Focus</span>
+          <span class="badge" id="focus-badge" hidden>0</span>
+        </button>
+        <button class="tab" data-view="progress">
+          <span class="tab-ico" aria-hidden="true">📊</span> <span data-i18n="tab.progress">My Progress</span>
+        </button>
+      </nav>
+
+      <div class="tools">
+        <button class="icon-btn" id="btn-lang" title="Language / العربية">ع</button>
+        <button class="icon-btn" id="btn-sound" title="Sound" aria-pressed="true" data-i18n-title="tool.sound">🔊</button>
+        <button class="icon-btn" id="btn-theme" title="Theme" data-i18n-title="tool.theme">🌙</button>
+        <button class="icon-btn" id="btn-help" title="Help" data-i18n-title="tool.help">؟</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- ===================== Practice ===================== -->
+      <section class="view is-active" id="view-practice">
+        <div class="modebar">
+          <div class="seg" id="mode-seg">
+            <button class="seg-btn" data-mode="lesson" data-i18n="mode.lesson">Lesson</button>
+            <button class="seg-btn" data-mode="time" data-i18n="mode.time">Time</button>
+            <button class="seg-btn" data-mode="words" data-i18n="mode.words">Words</button>
+          </div>
+          <div class="seg seg-opts" id="mode-opts"></div>
+          <label class="field" data-i18n-title="opt.font">
+            <span data-i18n="opt.font">Font</span>
+            <select id="opt-font"></select>
+          </label>
+        </div>
+
+        <div class="stats" id="stats">
+          <div class="stat">
+            <span class="stat-value" id="stat-wpm">0</span>
+            <span class="stat-label" data-i18n="stat.wpm">WPM</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-acc">100%</span>
+            <span class="stat-label" data-i18n="stat.acc">Accuracy</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-errors">0</span>
+            <span class="stat-label" data-i18n="stat.errors">Errors</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-streak">0</span>
+            <span class="stat-label" data-i18n="stat.streak">Streak</span>
+          </div>
+          <div class="stat stat-time">
+            <span class="stat-value" id="stat-time">0:00</span>
+            <span class="stat-label" data-i18n="stat.time">Time</span>
+          </div>
+        </div>
+
+        <div class="lesson-bar">
+          <div class="lesson-meta">
+            <span class="lesson-level" id="lesson-level">Beginner</span>
+            <div class="lesson-titles">
+              <strong id="lesson-title">Home Row — Left</strong>
+              <span id="lesson-sub">A S D F</span>
+            </div>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-pct" id="progress-pct">0%</div>
+        </div>
+
+        <div class="text-panel" id="text-panel" tabindex="0" role="textbox" aria-label="Typing area">
+          <div class="target" id="target" dir="rtl" lang="ar"></div>
+          <div class="start-hint" id="start-hint">
+            <span class="pulse-dot"></span>
+            <span data-i18n="hint.start">Start typing — no need to switch your system language</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="btn-restart" data-i18n="btn.restart">↻ Restart</button>
+          <button class="btn" id="btn-newdrill" data-i18n="btn.newdrill">✦ New drill</button>
+          <button class="btn" id="btn-next" data-i18n="btn.next">Next →</button>
+          <div class="control-spacer"></div>
+          <label class="switch" data-i18n-title="opt.keyboard">
+            <input type="checkbox" id="opt-keyboard" checked />
+            <span data-i18n="opt.keyboard">Keyboard</span>
+          </label>
+          <label class="switch" data-i18n-title="opt.stoperrorTitle">
+            <input type="checkbox" id="opt-stoperror" checked />
+            <span data-i18n="opt.stoperror">Stop on error</span>
+          </label>
+        </div>
+
+        <div class="keyboard-wrap" id="keyboard-wrap">
+          <div class="keyboard" id="keyboard" aria-hidden="true"></div>
+          <div class="finger-legend" id="finger-legend"></div>
+        </div>
+      </section>
+
+      <!-- ===================== Quran ===================== -->
+      <section class="view" id="view-quran">
+        <div class="quran-hero">
+          <h2 data-i18n="quran.title">Quran library</h2>
+          <p data-i18n="quran.lead">
+            Practice typing real Quranic text. Pick a surah and an ayah range;
+            the text is fetched from the alquran.cloud API and saved on your
+            device so the library keeps working offline.
+          </p>
+          <div class="quran-toolbar">
+            <input type="search" id="quran-search" data-i18n-placeholder="quran.search"
+                   placeholder="Search surah name or number…" />
+            <div class="quran-actions">
+              <button class="btn" id="quran-download-all" data-i18n="quran.downloadAll">Download all (offline)</button>
+              <button class="btn btn-ghost" id="quran-export" data-i18n="quran.export">Export</button>
+              <button class="btn btn-ghost" id="quran-import" data-i18n="quran.import">Import</button>
+              <button class="link-btn danger" id="quran-clear" data-i18n="quran.clear">Clear offline cache</button>
+            </div>
+          </div>
+          <div class="quran-status muted" id="quran-status"></div>
+        </div>
+
+        <div class="quran-layout">
+          <div class="panel quran-list-panel">
+            <div class="surah-list" id="surah-list"></div>
+          </div>
+
+          <div class="panel quran-pick-panel">
+            <div class="quran-pick-empty" id="quran-pick-empty" data-i18n="quran.pickSurah">Select a surah to begin.</div>
+            <div class="quran-pick-body" id="quran-pick-body" hidden>
+              <h3 id="quran-pick-title"></h3>
+              <div class="muted" id="quran-pick-meta"></div>
+              <div class="quran-range">
+                <label class="qlabel"><span data-i18n="quran.from">From</span>
+                  <input type="number" id="quran-from" min="1" value="1" /></label>
+                <label class="qlabel"><span data-i18n="quran.to">To</span>
+                  <input type="number" id="quran-to" min="1" value="10" /></label>
+              </div>
+              <div class="quran-quick">
+                <button class="chipbtn" data-quick="first10" data-i18n="quran.first10">First 10</button>
+                <button class="chipbtn" data-quick="all" data-i18n="quran.whole">Whole surah</button>
+                <button class="chipbtn" data-quick="random" data-i18n="quran.random">Random ayah</button>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="quran-harakat" />
+                <span data-i18n="quran.harakat">Show harakat (harder)</span>
+              </label>
+              <div class="quran-preview" id="quran-preview" dir="rtl" lang="ar"></div>
+              <div class="quran-pick-actions">
+                <button class="btn btn-primary" id="quran-start" data-i18n="quran.start">▶ Start typing</button>
+                <button class="btn" id="quran-offline" data-i18n="quran.saveOffline">Save offline</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== Mistake focus ===================== -->
+      <section class="view" id="view-focus">
+        <div class="focus-hero">
+          <div class="focus-hero-text">
+            <h2 data-i18n="focus.title">Mistake Focus</h2>
+            <p data-i18n="focus.lead">
+              The app tracks every letter you get wrong, then builds a custom drill around the
+              letters that trip you up most. Weak spots become strengths.
+            </p>
+          </div>
+          <button class="btn btn-accent btn-lg" id="btn-focus-start" data-i18n="focus.start">◎ Start mistake drill</button>
+        </div>
+
+        <div class="focus-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <h3 data-i18n="focus.chars">Your difficult letters</h3>
+              <span class="muted" data-i18n="focus.charsHint">Click a letter to drill it on its own</span>
+            </div>
+            <div class="chips" id="focus-chips" dir="rtl"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3 data-i18n="focus.conf">Most common mix-ups</h3>
+              <span class="muted" data-i18n="focus.confHint">you typed ⟶ correct</span>
+            </div>
+            <div class="confusions" id="focus-confusions"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3 data-i18n="focus.summary">Mistakes summary</h3>
+            <button class="link-btn" id="btn-focus-reset" data-i18n="focus.reset">Reset mistake stats</button>
+          </div>
+          <div class="focus-empty" id="focus-empty" hidden data-i18n="focus.empty">
+            No mistakes recorded yet — nice! Start practising and results will appear here.
+          </div>
+          <div class="focus-bars" id="focus-bars"></div>
+        </div>
+      </section>
+
+      <!-- ===================== Progress ===================== -->
+      <section class="view" id="view-progress">
+        <div class="stats" id="progress-stats">
+          <div class="stat"><span class="stat-value" id="p-best-wpm">0</span><span class="stat-label" data-i18n="stat.bestWpm">Best WPM</span></div>
+          <div class="stat"><span class="stat-value" id="p-best-acc">0%</span><span class="stat-label" data-i18n="stat.bestAcc">Best accuracy</span></div>
+          <div class="stat"><span class="stat-value" id="p-sessions">0</span><span class="stat-label" data-i18n="stat.sessions">Sessions</span></div>
+          <div class="stat"><span class="stat-value" id="p-streak">0</span><span class="stat-label" data-i18n="stat.dayStreak">Day streak</span></div>
+          <div class="stat"><span class="stat-value" id="p-lessons">0/0</span><span class="stat-label" data-i18n="stat.lessonsDone">Lessons done</span></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3 data-i18n="progress.heat">Letter heatmap</h3>
+            <span class="muted" data-i18n="progress.heatHint">each key's colour shows your accuracy</span>
+          </div>
+          <div class="keyboard keyboard--heat" id="keyboard-heat" aria-hidden="true"></div>
+          <div class="heat-legend">
+            <span data-i18n="progress.best">best</span>
+            <i class="heat-swatch" data-level="1"></i>
+            <i class="heat-swatch" data-level="2"></i>
+            <i class="heat-swatch" data-level="3"></i>
+            <i class="heat-swatch" data-level="4"></i>
+            <span data-i18n="progress.worst">worst</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3 data-i18n="progress.lessons">Lessons</h3>
+            <button class="link-btn danger" id="btn-progress-reset" data-i18n="progress.reset">Reset all progress</button>
+          </div>
+          <div class="lessons-list" id="lessons-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===================== Results modal ===================== -->
+  <div class="modal" id="modal-results" hidden>
+    <div class="modal-card modal-card--result">
+      <div class="modal-glow" id="result-glow"></div>
+      <h2 id="result-title">Lesson complete!</h2>
+      <p class="modal-sub" id="result-sub">Nice work — keep it up.</p>
+      <div class="result-big"><span id="r-wpm">0</span><small data-i18n="result.wpm">WPM</small></div>
+      <div class="result-grid">
+        <div class="result-cell"><span id="r-raw">0</span><small data-i18n="result.raw">Raw WPM</small></div>
+        <div class="result-cell"><span id="r-acc">0%</span><small data-i18n="result.accuracy">Accuracy</small></div>
+        <div class="result-cell"><span id="r-cons">0%</span><small data-i18n="result.consistency">Consistency</small></div>
+        <div class="result-cell"><span id="r-time">0:00</span><small data-i18n="stat.time">Time</small></div>
+      </div>
+      <canvas id="result-chart" class="result-chart" width="520" height="160"></canvas>
+      <div class="result-chars">
+        <span><b data-i18n="result.correct">Correct</b><i id="rc-correct">0</i></span>
+        <span><b data-i18n="result.incorrect">Incorrect</b><i id="rc-incorrect">0</i></span>
+        <span><b data-i18n="result.missed">Missed</b><i id="rc-missed">0</i></span>
+        <span><b data-i18n="result.extra">Extra</b><i id="rc-extra">0</i></span>
+      </div>
+      <div class="result-mistakes" id="result-mistakes"></div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="btn-result-retry" data-i18n="btn.retry">↻ Again</button>
+        <button class="btn" id="btn-result-focus" data-i18n="btn.mistakeDrill">◎ Mistake drill</button>
+        <button class="btn btn-ghost" id="btn-result-next" data-i18n="btn.nextLesson">Next lesson →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Help modal ===================== -->
+  <div class="modal" id="modal-help" hidden>
+    <div class="modal-card modal-card--wide">
+      <button class="modal-close" id="btn-help-close" aria-label="Close">✕</button>
+      <h2 data-i18n="help.title">How to use it</h2>
+      <ol class="help-list">
+        <li data-i18n="help.1">Pick a lesson or press “Next”. The key you need lights up on the keyboard.</li>
+        <li data-i18n="help.2">Type the highlighted letter. Correct letters turn bright; a wrong key flashes red.</li>
+        <li data-i18n="help.3">You do not need to change your computer language — the app maps your physical keys to Arabic letters.</li>
+        <li data-i18n="help.4">Every mistake is recorded. Open the Mistake Focus tab to generate a drill built from your own weak letters.</li>
+        <li data-i18n="help.5">Follow your progress in the My Progress tab with the per-letter accuracy heatmap.</li>
+        <li data-i18n="help.6">Switch between Lesson, Time and Words at the top. In Time mode the clock starts on your first keystroke.</li>
+        <li data-i18n="help.7">Press Tab while typing to instantly restart the current test. Change the Arabic font from the Font menu.</li>
+      </ol>
+      <p class="help-note" data-i18n="help.note">Tip: keep your fingers on the home row and use the correct finger for each key.</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
